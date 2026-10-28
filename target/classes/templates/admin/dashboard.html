@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Панель администратора — Allur</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<nav class="navbar navbar-dark px-4 py-3">
+    <span class="navbar-brand fw-bold fs-5">Allur — Панель администратора</span>
+    <form th:action="@{/logout}" method="post" class="m-0">
+        <button class="btn btn-light btn-sm" type="submit">Выйти</button>
+    </form>
+</nav>
+
+<div class="container-fluid mt-4 pb-5 px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0">Все заявки на тест-драйв</h4>
+        <span class="badge bg-secondary fs-6" th:text="${bookings.size()} + ' заявок'"></span>
+    </div>
+
+    <div th:if="${#lists.isEmpty(bookings)}" class="alert alert-info">
+        Заявок пока нет.
+    </div>
+
+    <div class="table-responsive" th:if="${!#lists.isEmpty(bookings)}">
+        <table class="table table-bordered table-hover bg-white shadow-sm align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Клиент</th>
+                    <th>Email</th>
+                    <th>Телефон</th>
+                    <th>Дата тест-драйва</th>
+                    <th>Место</th>
+                    <th>ВУ</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="booking : ${bookings}">
+                    <td th:text="${booking.id}"></td>
+                    <td class="fw-semibold" th:text="${booking.firstName + ' ' + booking.lastName}"></td>
+                    <td th:text="${booking.user.email}"></td>
+                    <td th:text="${booking.phone}"></td>
+                    <td th:text="${booking.testDriveDate}"></td>
+                    <td th:text="${booking.location}"></td>
+                    <td>
+                        <a th:href="@{/admin/booking/{id}/license(id=${booking.id})}"
+                           class="btn btn-sm btn-outline-dark" target="_blank">
+                            Открыть
+                        </a>
+                    </td>
+                    <td>
+                        <span th:if="${booking.status.name() == 'APPROVED'}" class="badge bg-success">Одобрено</span>
+                        <span th:if="${booking.status.name() == 'REJECTED'}" class="badge bg-danger">Отклонено</span>
+                        <span th:if="${booking.status.name() == 'PENDING'}"  class="badge bg-warning text-dark">Ожидание</span>
+                    </td>
+                    <td>
+                        <div th:if="${booking.status.name() == 'PENDING'}" class="d-flex gap-1">
+                            <form th:action="@{/admin/booking/{id}/approve(id=${booking.id})}" method="post" class="m-0">
+                                <button class="btn btn-sm btn-success">Принять</button>
+                            </form>
+                            <form th:action="@{/admin/booking/{id}/reject(id=${booking.id})}" method="post" class="m-0">
+                                <button class="btn btn-sm btn-danger">Отклонить</button>
+                            </form>
+                        </div>
+                        <span th:if="${booking.status.name() != 'PENDING'}" class="text-muted small">—</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>
